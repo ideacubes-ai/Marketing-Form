@@ -56,21 +56,25 @@ export default function App() {
         },
         body: JSON.stringify({
           access_key: accessKey,
-          subject: "New Form Submission",
+          subject: "New B2B Campaign Submission",
+          name: "B2B Campaign App",
+          email: "noreply@unoverse.ai",
           message: emailBody,
-          from_name: "Form Submissions"
+          from_name: "B2B Campaign App"
         }),
       });
 
       const result = await response.json();
-      if (response.status === 200) {
+      if (response.status === 200 && result.success) {
         setSubmitStatus('success');
       } else {
         console.error("Web3Forms API Error:", result);
+        alert(`Failed to send email. Web3Forms says: ${result.message || "Unknown error"}`);
         setSubmitStatus('error');
       }
     } catch (err) {
       console.error(err);
+      alert("Failed to connect to Web3Forms API. Please check your internet connection.");
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
