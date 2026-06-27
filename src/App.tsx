@@ -40,7 +40,7 @@ export default function App() {
 
     const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
     if (!accessKey) {
-      alert("VITE_WEB3FORMS_ACCESS_KEY is missing. Please add it to your environment variables (Settings -> Secrets) and restart the server.");
+      alert("VITE_WEB3FORMS_ACCESS_KEY is missing.\n\nIf you hosted this on Cloudflare Pages/Vercel/Netlify, you need to add VITE_WEB3FORMS_ACCESS_KEY to your project's Environment Variables in their dashboard, and then trigger a NEW deployment so the build can pick it up.\n\nIn AI Studio: Add it to Settings -> Secrets and restart the server.");
       return;
     }
 
