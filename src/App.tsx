@@ -10,9 +10,11 @@ export default function App() {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [showSummary, setShowSummary] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const briefRef = useRef<HTMLDivElement>(null);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     let emailBody = "Selected Options:\n\n";
     
     formData.forEach((fStep) => {
@@ -36,8 +38,43 @@ export default function App() {
       });
     });
 
-    const mailtoLink = `mailto:unoverse.ai@gmail.com?subject=${encodeURIComponent("New Form Submission")}&body=${encodeURIComponent(emailBody)}`;
-    window.location.href = mailtoLink;
+    const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+    if (!accessKey) {
+      alert("VITE_WEB3FORMS_ACCESS_KEY is missing. Please add it to your environment variables (Settings -> Secrets) and restart the server.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: "New Form Submission",
+          message: emailBody,
+          from_name: "Form Submissions"
+        }),
+      });
+
+      const result = await response.json();
+      if (response.status === 200) {
+        setSubmitStatus('success');
+      } else {
+        console.error("Web3Forms API Error:", result);
+        setSubmitStatus('error');
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const step = formData[currentStep];
@@ -337,20 +374,32 @@ export default function App() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-end print:hidden mb-12">
-              <motion.button
-                type="button"
-                onClick={handleConfirm}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all self-start sm:self-auto"
-              >
-                Confirm & Send ✉️
-              </motion.button>
+              {submitStatus === 'success' ? (
+                <div className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-green-700 bg-green-100 px-6 py-3 rounded-xl shadow-sm self-start sm:self-auto border border-green-200">
+                  <Check size={18} /> Sent Successfully!
+                </div>
+              ) : (
+                <motion.button
+                  type="button"
+                  onClick={handleConfirm}
+                  disabled={isSubmitting}
+                  whileHover={isSubmitting ? {} : { scale: 1.05 }}
+                  whileTap={isSubmitting ? {} : { scale: 0.95 }}
+                  className={`flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all self-start sm:self-auto ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
+                >
+                  {isSubmitting ? 'Sending...' : 'Confirm & Send ✉️'}
+                </motion.button>
+              )}
+              {submitStatus === 'error' && (
+                <div className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-rose-700 bg-rose-100 px-6 py-3 rounded-xl shadow-sm self-start sm:self-auto border border-rose-200">
+                  Error sending email
+                </div>
+              )}
               <motion.button 
                 type="button"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => { setShowSummary(false); setCurrentStep(0); setAnswers({}); window.scrollTo(0,0); }}
+                onClick={() => { setShowSummary(false); setCurrentStep(0); setAnswers({}); setSubmitStatus('idle'); window.scrollTo(0,0); }}
                 className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-indigo-600 bg-white/80 hover:bg-white px-6 py-3 rounded-xl backdrop-blur-md border border-slate-200 shadow-sm hover:shadow-md transition-all self-start sm:self-auto"
               >
                 Start Over <RefreshCcw size={16} />
