@@ -1,0 +1,6 @@
+{
+  "name": "Growth Strategy Planner",
+  "description": "Premium B2B Growth Strategy Planner for Triumph Media Events Wing",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
