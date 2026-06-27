@@ -328,6 +328,31 @@ export default function App() {
               </motion.button>
             </div>
           </motion.div>
+        ) : submitStatus === 'success' ? (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-2xl mx-auto text-center py-24 px-8 bg-white/80 backdrop-blur-2xl border border-white/60 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.05)]"
+          >
+            <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-600 text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-green-500/20">
+              <Check size={48} strokeWidth={3} />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-800 mb-6 tracking-tight">
+              Thank You! 🎉
+            </h2>
+            <p className="text-slate-600 text-lg md:text-xl mb-12 leading-relaxed max-w-lg mx-auto">
+              Your campaign details have been successfully submitted. We will review your selections and get back to you shortly.
+            </p>
+            <motion.button 
+              type="button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { setShowSummary(false); setCurrentStep(0); setAnswers({}); setSubmitStatus('idle'); window.scrollTo(0,0); }}
+              className="inline-flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white bg-slate-800 hover:bg-slate-900 px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all"
+            >
+              Start New Campaign 🚀
+            </motion.button>
+          </motion.div>
         ) : (
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
@@ -374,22 +399,16 @@ export default function App() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 justify-end print:hidden mb-12">
-              {submitStatus === 'success' ? (
-                <div className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-green-700 bg-green-100 px-6 py-3 rounded-xl shadow-sm self-start sm:self-auto border border-green-200">
-                  <Check size={18} /> Sent Successfully!
-                </div>
-              ) : (
-                <motion.button
-                  type="button"
-                  onClick={handleConfirm}
-                  disabled={isSubmitting}
-                  whileHover={isSubmitting ? {} : { scale: 1.05 }}
-                  whileTap={isSubmitting ? {} : { scale: 0.95 }}
-                  className={`flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all self-start sm:self-auto ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
-                >
-                  {isSubmitting ? 'Sending...' : 'Confirm & Send ✉️'}
-                </motion.button>
-              )}
+              <motion.button
+                type="button"
+                onClick={handleConfirm}
+                disabled={isSubmitting}
+                whileHover={isSubmitting ? {} : { scale: 1.05 }}
+                whileTap={isSubmitting ? {} : { scale: 0.95 }}
+                className={`flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-white bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all self-start sm:self-auto ${isSubmitting ? 'opacity-75 cursor-wait' : ''}`}
+              >
+                {isSubmitting ? 'Sending...' : 'Confirm & Send ✉️'}
+              </motion.button>
               {submitStatus === 'error' && (
                 <div className="flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-wider text-rose-700 bg-rose-100 px-6 py-3 rounded-xl shadow-sm self-start sm:self-auto border border-rose-200">
                   Error sending email
